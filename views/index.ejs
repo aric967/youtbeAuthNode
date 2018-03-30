@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>
+    <%= title %>
+  </title>
+  <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+
+<body>
+  <h1>
+    <%= title %>
+  </h1>
+  <p>Welcome to
+    <%= title %>
+  </p>
+  <!-- <a href="https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fplus.me&response_type=code&client_id=981023211668-39afjftden4grotulm205emc3ttv0aat.apps.googleusercontent.com&redirect_uri=http://localhost:8080/callback"
+    target="_blank">Authorize</a> -->
+    <a href="https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&scope=https://www.googleapis.com/auth/youtube&response_type=code&client_id=981023211668-39afjftden4grotulm205emc3ttv0aat.apps.googleusercontent.com&redirect_uri=http://localhost:8080/callback"
+    target="_blank">Authorize</a>
+  <button onclick="getAccessToken()">Get Token</button>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+  <script type="text/javascript">
+    var getAccessToken = function () {
+      var json = {
+        "code": "4/AAB3qODrXAux8P5j5uKjXiektdRu0Lq7TOLlIzz0uZnRj8GUcWx7yfUI2y_ynzUosQ2le9YgalmWntwePJH9Aww#",
+        "client_id": "981023211668-39afjftden4grotulm205emc3ttv0aat.apps.googleusercontent.com",
+        "client_secret": "nsslOVltSlI0FvTvkdH8UiG6",
+        "redirect_uri": "http://localhost:8080/callback",
+        "grant_type": "authorization_code"
+      };
+      var headers = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+      axios.post('https://accounts.google.com/o/oauth2/token', json, {
+        headers: headers
+      }).then((res) => {
+        console.log(res);
+      });
+    }
+  </script>
+</body>
+
+</html>
