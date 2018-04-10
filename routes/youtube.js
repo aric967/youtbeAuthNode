@@ -6,12 +6,13 @@ var request = require('request');
 const fs = require('fs');
 var path = require('path');
 const { google } = require('googleapis');
+var utils = require('../utils/utils');
 const OAuth2Client = google.auth.OAuth2;
 
 const CLIENT_ID = '981023211668-39afjftden4grotulm205emc3ttv0aat.apps.googleusercontent.com';
 const CLIENT_SECRET = 'nsslOVltSlI0FvTvkdH8UiG6';
 const REDIRECT_URL = 'http://localhost:8080/callback';
-
+const API_KEY = 'AIzaSyDNPnM0HZcNnwX4XBHawZ9UplKLQkkUObY';
 const oauth2Client = new OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 
 
@@ -50,8 +51,55 @@ router.get('/mychannels', function (req, res, next) {
         }
         res.json(body);
     })
-    // res.send('respond with a resource');
 });
+
+router.get('/redbangle', function (req, res, next) {
+    request.get(`https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails,statistics&mine=true&key=${API_KEY}`, {
+        headers: {
+            Authorization: getTokenFromSource()
+        }
+    }, function (error, response, body) {
+        console.log(response.statusCode);
+        if (response.statusCode === 401) {
+            // get new token by passing refresh token
+        }
+        res.json(body);
+    })
+});
+router.post('/channelsVideos', function (req, res, next) {
+    // UUEmcTTlF1f0dgLnHIYBYBww  ---> upload property  from the channels call
+    var playListId = req.body.playListId
+    console.log(playListId)
+    request.get(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&maxResults=50&playlistId=${playListId}&key=${API_KEY}`, {
+        headers: {
+            Authorization: getTokenFromSource()
+        }
+    }, function (error, response, body) {
+        console.log(response.statusCode);
+        if (response.statusCode === 401) {
+            // get new token by passing refresh token
+        }
+        res.json(body);
+    })
+});
+
+router.post('/videosById', function (req, res, next) {
+    // video Id ---> p_0Q9KMPhdc
+    var videoId = req.body.videoId;
+    request.get(`https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoId}&key=${API_KEY}`, {
+        headers: {
+            Authorization: getTokenFromSource()
+        }
+    }, function (error, response, body) {
+        console.log(response.statusCode);
+        if (response.statusCode === 401) {
+            // get new token by passing refresh token
+        }
+        res.json(body);
+    })
+});
+
+
 
 router.post('/generateToken', function (req, res, next) {
     let code = req.body.authorizationCode;
@@ -80,28 +128,20 @@ router.post('/generateToken', function (req, res, next) {
 router.post('/videos', function (req, res, next) {
     console.log(req.body.videoUrl)
     var videoUrl = req.body.videoUrl;
-	//var file = fs.createWriteStream('file.mp4');
-	download(videoUrl, 'file.mp4', function(resposne) {
-		console.log(resposne);
-		res.send(resposne);
-		uploadVideo('file.mp4', function (data) {
-        console.log(data);
+    //var file = fs.createWriteStream('file.mp4');
+    download(videoUrl, 'file.mp4', function (resposne) {
+        console.log(resposne);
+        res.send(resposne);
+        uploadVideo('file.mp4', function (data) {
+            console.log(data);
+        });
     });
-});
-    
-    /*var request = http.get(videoUrl, function (response) {
-        console.log(response);
-        response.pipe(file);
-		response.on('end', function () {
-           res.json('sucees');
-		});
-    });*/
 });
 
 router.post('/uploadVideo', function (req, res, next) {
     uploadVideo('file.mp4', function (data) {
         console.log(data);
-		res.send(data);
+        res.send(data);
     });
 });
 
@@ -117,7 +157,7 @@ var getAccessToken = function (json) {
                     resolve(response, body);
                 }
             });
-    })
+    });
 }
 
 var getAccessTokenFromRefreshToken = function () {
